@@ -103,10 +103,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Double Pendulum Simulation");
     SetTargetFPS(60);               
     
-    // FFmpeg setup
     FILE* ffmpeg = nullptr;
     int frameCount = 0;
-    const int totalFrames = 60 * 20; // 30 seconds at 60 FPS
+    const int totalFrames = 60 * 20; // 20 seconds at 60 FPS
     bool recording = false;
 
     while (!WindowShouldClose())    
@@ -114,7 +113,6 @@ int main(void)
         // Press 'R' to start recording
         if (IsKeyPressed(KEY_R) && !recording) {
             recording = true;
-            // Command to record raw video from stdin
             const char* cmd = "ffmpeg -y -f rawvideo -pix_fmt rgba -s 1280x720 -r 60 -i - "
                             "-c:v libx264 -preset ultrafast -pix_fmt yuv420p output.mp4";
             ffmpeg = popen(cmd, "w");
@@ -136,11 +134,10 @@ int main(void)
             if (recording) DrawText("RECORDING...", 20, 50, 20, RED);
         EndDrawing();
 
-        // Capture the frame and send to FFmpeg
         if (recording && frameCount < totalFrames) {
-            Image frame = LoadImageFromScreen(); // Grab pixels from GPU
+            Image frame = LoadImageFromScreen(); 
             fwrite(frame.data, 1280 * 720 * 4, 1, ffmpeg);
-            UnloadImage(frame); // Free memory
+            UnloadImage(frame); 
             frameCount++;
         } else if (frameCount >= totalFrames && recording) {
             pclose(ffmpeg);
